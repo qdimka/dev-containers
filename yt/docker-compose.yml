@@ -1,0 +1,13 @@
+version: '3.5'
+
+services:
+  yt:
+    image: jetbrains/youtrack:2020.3.12000
+    volumes:
+      - ./data:/opt/youtrack/data 
+      - ./conf:/opt/youtrack/conf 
+      - ./logs:/opt/youtrack/logs 
+      - ./backups:/opt/youtrack/backups 
+    ports:
+      - "9192:8080"
+    restart: unless-stopped

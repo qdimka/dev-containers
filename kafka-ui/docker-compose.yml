@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  kafkaui:
+    image: 'provectuslabs/kafka-ui:latest'
+    ports:
+      - '9123:8080'
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS="localhost:9092"
+    restart: unless-stopped

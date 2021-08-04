@@ -1,0 +1,12 @@
+#docker run --privileged -d -p 389:389 rroemhild/test-openldap
+
+version: '3.5'
+
+services:
+  ldap:
+    container_name: ldap
+    image: rroemhild/test-openldap
+    privileged: true
+    ports:
+      - "389:389"
+    restart: unless-stopped
