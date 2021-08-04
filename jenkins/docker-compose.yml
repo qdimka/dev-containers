@@ -1,0 +1,85 @@
+version: '3.7'
+
+networks:
+  monitor-net:
+    driver: bridge
+
+
+services:
+
+####################################### Nginx service
+  nginx:
+    image: nginx:alpine
+    container_name: monitor_nginx
+    command: ["nginx", "-c", "/etc/nginx/nginx.conf"]
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "9090:9090"
+      - "9093:9093"
+      - "9091:9091"
+      - "8080:8080"
+      - "50000:50000"
+    networks:
+      - monitor-net
+
+######################################## Jenkins service
+  jenkins:
+    build:
+      context: ./jenkins-master/
+    container_name: jenkins
+    restart: unless-stopped
+    environment:
+      # - JENKINS_ENVIRONMENT=staging
+      - JENKINS_SLAVE_AGENT_PORT=50000
+      - JENKINS_AGENT_NAME=jenkins-slave-1
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Djenkins.slaves.NioChannelSelector.disabled=true -Djenkins.slaves.JnlpSlaveAgentProtocol3.enabled=false
+      - JENKINS_OPTS=--httpListenAddress=0.0.0.0 --httpPort=8080 --ajp13Port=-1 --sessionTimeout=10080 --sessionEviction=43200
+      - GOOGLE_AUTH=disabled
+      - JENKINS_USERNAME=${ADMIN_USER}
+      - JENKINS_USER_PASSWORD=${ADMIN_PASSWORD}
+      # - JENKINS_THEME_PATH=/userContent/material-light-blue.css
+      # - VAULT_ADDRESS=???????
+      # - SONARQUBE_SERVER_URL=localhost:19000
+      # - JENKINS_ROOT_URL=https://${local.dns_name}
+      # - AWS_ACCOUNT=?????????
+      # - JENKINS_IAM_ROLE=?????????
+      # - GITHUB_API_TOKEN=?????????
+      # - GOOGLE_APP_CLIENT_ID=???????????
+      # - GOOGLE_APP_SECRET=??????????????
+      # - GOOGLE_ACCOUNT_DOMAIN=timzu.com
+      # - LOG_DESTINATION=tcp+tls://logs6.papertrailapp.com:32171
+      # - REGION=us-west-1
+      # - SMTP_HOST=email-smtp.exmple.com
+      # - SMTP_USER=????????
+      # - SMTP_PASSWORD=????????
+      # - NEXUS_PORT=18081
+      # - SONAR_PORT=9000
+      # - SONAR_DB_PORT=5432
+    volumes:
+      - ./tmp/jenkins_home:/var/jenkins_home
+    networks:
+      - monitor-net
+    expose:
+      - 8080
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 200M
+    #     reservations:
+    #       memory: 100M
+
+######################################## Jenkins agent service
+  jenkins-agent:
+    build:
+      context: ./jenkins-slave/
+    container_name: jenkins-agent
+    restart: always
+    depends_on:
+      - jenkins
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - monitor-net
