@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  seq:
+    image: datalust/seq
+    restart: unless-stopped
+    volumes:
+      - ~/Files/Docker/Data/seq:/data
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 5341:80
+
+networks:
+  seq:
+    driver: bridge

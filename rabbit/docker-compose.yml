@@ -1,0 +1,20 @@
+version: "3.2"
+services:
+  rabbitmq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/Files/Docker/Data/rabbit/data:/var/lib/rabbitmq/
+      - ~/Files/Docker/Data/rabbit/log:/var/log/rabbitmq
+    networks:
+      - rabbitmq
+    restart: unless-stopped
+
+networks:
+  rabbitmq:
+    driver: bridge

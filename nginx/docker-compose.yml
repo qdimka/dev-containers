@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - NGINX_ENVSUBST_TEMPLATE_DIR=/usr/nginx/templates
+      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
+      - DOMAIN=devrx.work-zilla.com
+      - CLIENT_DOMAIN=client.devrx.work-zilla.com
+      - DOMAIN99=dev.99uslug.ru
+      - DOMAIN_KADROUT=dev.kadrout.ru
+      - CERT_NAME=nginx-self-signed.crt
+      - CERT_KEY_NAME=nginx-self-signed.key
+      - CERT99_NAME=99uslug.crt
+      - CERT99_KEY_NAME=99uslug.key
+      - CERT_KADROUT_NAME=kadrout-cert.crt
+      - CERT_KADROUT_KEY_NAME=kadrout-cert.key
+    volumes:
+      - ./nginx/templates:/usr/nginx/templates
+      - ./nginx/config:/etc/nginx
+      - ./nginx/html:/etc/nginx/html
+      - ./nginx/ssl:/usr/nginx/certificates
+      - ./nginx/logs:/var/log/nginx
